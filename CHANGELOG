@@ -1,2 +1,11 @@
+1.0.0-alpha.2.0
+- Add Monolog (Logs)
+- Add Eloquent (ORM)
+- Add Twig (Views)
+- Add .htaccess (public/ folder)
+- Add AppController (access $app var)
+- Add Configuration class + app/Config/global.php for config
+- Debug only display var_dump() if debug set to true
+
 1.0.0-alpha.1.0
 - First release
