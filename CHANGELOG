@@ -1,3 +1,13 @@
+1.0.0-alpha.3.0
+- Add Foundation
+- Add FontAwesome
+- Edit homepage + layout (add navbar)
+- Add AppController:__setViewVars()
+- Add AppController:set()
+- Add AppController:render()
+- Add AppController:__getCaller()
+- Add AppController:__getView()
+
 1.0.0-alpha.2.0
 - Add Monolog (Logs)
 - Add Eloquent (ORM)

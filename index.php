@@ -100,8 +100,8 @@ foreach ($routes as $route => $controller) {
     list($controller, $action) = explode('.', $controller);
     // include + init controller class
     require $controllerPath . $controller . '.php';
-    $controllerClass = new $controller($app);
-    return $controllerClass->{$action}($request, $response, $args);
+    $controllerClass = new $controller($app, $request, $response);
+    return $controllerClass->{$action}($args);
   });
 }
 

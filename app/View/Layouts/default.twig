@@ -1,12 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html class="no-js" lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>yolo</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} - Sanctions</title>
+    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/foundation.min.css">
+    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/app.css">
+    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/font-awesome.min.css">
+    {% block css %}
+    {% endblock %}
   </head>
   <body>
-    MDR
+    {% block header %}
+      {% block navigation %}
+        <nav class="row">
+          <div class="large-12 columns">
+            <ul class="button-group radius even-4 menu">
+              <li><a class="button" href="/"><i class="fa fa-home"></i> Accueil</a></li>
+              <li><a class="button" href="https://forum.obsifight.net"><i class="fa fa-comments-o"></i> Forum</a></li>
+              <li><a class="button" href="https://obsifight.net"><em><small><i class="fa fa-sign-out"></i> Retourner sur obsifight.net</a></small></em></li>
+            </ul>
+          </div>
+        </nav>
+      {% endblock %}
+    {% endblock %}
+
     {% block body %}
+    {% endblock %}
+
+    {% block footer %}
+      <footer>
+        <div class="row">
+          <div class="large-12 columns">
+            <p class="float-left">Développé par Eywek</p>
+            <p class="float-right">Version : {{version}}</p>
+          </div>
+        </div>
+      </footer>
+    {% endblock %}
+
+    <script src="{{router.getAssetsBase}}/js/vendor/jquery.js"></script>
+    <script src="{{router.getAssetsBase}}/js/vendor/what-input.js"></script>
+    <script src="{{router.getAssetsBase}}/js/vendor/foundation.js"></script>
+    <script src="{{router.getAssetsBase}}/js/app.js"></script>
+    <script src="{{router.getAssetsBase}}/js/stickyFooter.js"></script>
+    {% block javascript %}
     {% endblock %}
   </body>
 </html>
