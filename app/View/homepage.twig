@@ -4,12 +4,81 @@
   <div class="row">
     <div class="large-12 columns">
 
+      <p>
+        Ce service vous permet de contester une sanction
+      </p>
+
       <div class="callout large">
-        <h5>This is a large callout</h5>
-        <p>It has an easy to override visual style, and is appropriately subdued.</p>
-        <a href="#">It's dangerous to go alone, take this.</a>
+        <h5>Entrez votre pseudo pour contester une sanction</h5>
+
+        <div id="ajax-message"></div>
+
+        <div class="input-group" id="findSanctions">
+          <input class="input-group-field" type="text">
+          <div class="input-group-button">
+            <button type="submit" class="button secondary">Valider</button>
+          </div>
+        </div>
+
       </div>
 
     </div>
   </div>
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript">
+    $('#findSanctions button[type="submit"]').on('click', function (e) {
+      e.preventDefault()
+
+      var btn = $(this)
+      var btnValue = btn.html()
+      var input = $('#findSanctions').find('input')
+
+      // handle btn
+      btn.attr('disabled', true).addClass('disabled').css('opacity', '0.7')
+      btn.html('<i class="fa fa-refresh fa-spin fa-fw"></i>')
+
+      // query
+      $.post('{{router.getBase}}/contest/search', {user: input.val()}, function (data) {
+
+        if (data.status)
+          displayAlert(true, 'Une sanction a bien été trouvée !')
+        else
+          displayAlert(false, "Aucune sanction en cours (ban ou mute) n'a été trouvée !")
+
+        enableBtn(btn, btnValue)
+      }).fail(function (data) {
+
+        switch (data.status) {
+          case 501:
+            displayAlert(false, 'Vous devez fournir un pseudo !')
+            break;
+          case 404:
+            displayAlert(false, "Votre pseudo n'a pas été trouvé dans notre base de données !")
+            break;
+          default:
+            displayAlert(false, 'Une erreur inconnue est survenue !')
+
+        }
+
+        enableBtn(btn, btnValue)
+      })
+    })
+
+    function displayAlert(type, msg) {
+      var div = $('#ajax-message').hide()
+      if (msg) {
+        if (type)
+          div.html('<div class="success callout"><p><b>Succès :</b> ' + msg + '</p></div>')
+        else
+          div.html('<div class="alert callout"><p><b>Erreur :</b> ' + msg + '</p></div>')
+        div.fadeIn(150)
+      }
+    }
+    function enableBtn(btn, btnValue) {
+      btn.attr('disabled', false).removeClass('disabled').css('opacity', '')
+      btn.html(btnValue)
+    }
+  </script>
 {% endblock %}

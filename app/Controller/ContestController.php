@@ -4,15 +4,33 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class ContestController extends AppController {
 
-  function index() {
-    require ROOT.DS.'lib'.DS.'API'.DS.'ApiObsifightClass.php';
-    $api = new ApiObsifight('Eywek', '84pdmQpPGedGxYG');
-    //debug($api->get('/user/Eywek'));
-    //debug($api->get('/sanction/bans?limit=1'));
-
+  public function index() {
     $this->set('title', 'Liste des contestations');
-    $this->set('name', 'yolo');
     return $this->render('homepage.twig');
+  }
+
+  public function search() {
+    $query = $_POST;
+    if (!isset($query['user']) || empty($query['user']))
+      return $this->response->withJson(['status' => false, 'error' => 'Method not implemented yet.'], 501);
+
+    // get user's sanctions
+    require ROOT.DS.'lib'.DS.'API'.DS.'ApiObsifightClass.php';
+    $api = new ApiObsifight(Configuration::get('api')['username'], Configuration::get('api')['password']);
+    $result = $api->get("/user/{$query['user']}/sanctions?limit=3");
+    if (!$result->status) { // error
+      return $this->response->withJson(['status' => false, 'error' => $result->error], $result->code);
+    }
+
+    // check if last ban is active
+    if ($result->body['bans'][0]['state'])
+      return $this->response->withJson(['status' => true, 'data' => ['type' => 'ban', 'id' => $result->body['bans'][0]['id']]]);
+    // check if last mute is active
+    if ($result->body['mutes'][0]['state'])
+      return $this->response->withJson(['status' => true, 'data' => ['type' => 'mute', 'id' => $result->body['mutes'][0]['id']]]);
+
+    // no bans or mutes
+    return $this->response->withJson(['status' => false, 'error' => 'No sanctions active found.'], 200);
   }
 
 }

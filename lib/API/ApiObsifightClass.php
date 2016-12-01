@@ -1,11 +1,11 @@
 <?php
 class ApiObsifight {
 
-  private $username;
-  private $password;
-  private $token;
+  private $username = '';
+  private $password = '';
+  private $token = '';
 
-  private $endpoint;
+  private $endpoint = '';
 
   private $actions = array(
     'AUTH' => '/authenticate'
@@ -20,14 +20,14 @@ class ApiObsifight {
 
   private function __connect() {
     // Init request
-    list($body, $code, $error) = $this->__request($this->actions['AUTH'], 'POST', array('username' => $this->username, 'password' => $this->password), false);
+    list($body, $code, $error) = $this->__request($this->actions['AUTH'], 'POST', ['username' => $this->username, 'password' => $this->password], false);
     if ($error || $code !== 200 || !$body || !$body['status'])
       return false;
     // get token
     $this->token = $body['data']['token'];
   }
 
-  private function __request($action, $method = 'GET', $body = array(), $token = true) {
+  private function __request($action, $method = 'GET', $body = [], $token = true) {
     // Init request
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $this->endpoint.$action);
@@ -48,7 +48,7 @@ class ApiObsifight {
     $error = curl_errno($curl);
     curl_close($curl);
 
-    return array($result, $code, $error);
+    return [$result, $code, $error];
   }
 
   public function getToken() {
@@ -58,10 +58,13 @@ class ApiObsifight {
   }
 
   public function get($route, $method = 'GET', $body = array()) {
-    list($body, $code, $error) = $this->__request($route, $method, $body = array());
-    if ($error || $code !== 200 || !$body || !$body['status'])
-      return (isset($body['error'])) ? $body['error'] : false;
-    return $body['data'];
+    list($body, $code, $error) = $this->__request($route, $method, $body = []);
+    return (object)[
+      'status' => ($code === 200),
+      'code' => $code,
+      'error' => $body['error'],
+      'body' => $body['data']
+    ];
   }
 
 }

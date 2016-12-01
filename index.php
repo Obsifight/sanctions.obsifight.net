@@ -78,6 +78,9 @@ $container['view'] = function ($container) {
 $routes = require ROOT.DS.'app'.DS.'Config'.DS.'routes.php';
 $controllerPath = ROOT.DS.'app'.DS.'Controller'.DS;
 
+// vars
+$routesList = [];
+
 // app controller
 require $controllerPath . DS. 'AppController.php';
 
@@ -91,12 +94,16 @@ foreach ($routes as $route => $controller) {
     $method = 'get';
   }
 
+  $routesList[strtoupper($method).' '.$route] = $controller;
+
   // init route on app
   $app->{$method}($route, function (Request $request, Response $response, array $args = array()) {
-    global $controller;
     global $controllerPath;
     global $app;
+    global $routesList;
+
     // init vars
+    $controller = $routesList[$request->getMethod().' '.$request->getUri()->getPath()];
     list($controller, $action) = explode('.', $controller);
     // include + init controller class
     require $controllerPath . $controller . '.php';

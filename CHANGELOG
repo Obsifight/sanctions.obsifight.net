@@ -1,3 +1,9 @@
+1.0.0-alpha.4.0
+- Fix router (add $routesList)
+- Edit ApiObsifight:get() method (return now code, status, error message)
+- Set API Access into global.php configuration file
+- Edit ContestController:search() with correct behavior
+
 1.0.0-alpha.3.0
 - Add Foundation
 - Add FontAwesome
