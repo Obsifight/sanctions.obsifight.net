@@ -22,6 +22,11 @@ header nav .ui.menu .header.item img {
 /* ======
 *  FOOTER
 */
+
+footer {
+  margin-top: 50px;
+}
+
 .footer.segment {
-    padding: 5em 0em;
+  padding: 5em 0em;
 }

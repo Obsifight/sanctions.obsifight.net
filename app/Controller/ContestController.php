@@ -24,10 +24,10 @@ class ContestController extends AppController {
 
     // check if last ban is active
     if ($result->body['bans'][0]['state'])
-      return $this->response->withJson(['status' => true, 'data' => ['type' => 'ban', 'id' => $result->body['bans'][0]['id']]]);
+      return $this->response->withJson(['status' => true, 'data' => ['type' => 'ban', 'data' => $result->body['bans'][0]]]);
     // check if last mute is active
     if ($result->body['mutes'][0]['state'])
-      return $this->response->withJson(['status' => true, 'data' => ['type' => 'mute', 'id' => $result->body['mutes'][0]['id']]]);
+      return $this->response->withJson(['status' => true, 'data' => ['type' => 'mute', 'data' => $result->body['mutes'][0]]]);
 
     // no bans or mutes
     return $this->response->withJson(['status' => false, 'error' => 'No sanctions active found.'], 200);
