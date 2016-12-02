@@ -1,3 +1,7 @@
+1.0.0-alpha.5.0
+- Delete Foundation
+- Use semantic-ui as CSS framework
+
 1.0.0-alpha.4.0
 - Fix router (add $routesList)
 - Edit ApiObsifight:get() method (return now code, status, error message)

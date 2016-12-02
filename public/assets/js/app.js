@@ -1,1 +1,1 @@
-$(document).foundation()
+$('.ui.dropdown').dropdown()

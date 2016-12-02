@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}} - Sanctions</title>
-    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/foundation.min.css">
+    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/semantic.min.css">
     <link rel="stylesheet" href="{{router.getAssetsBase}}/css/app.css">
     <link rel="stylesheet" href="{{router.getAssetsBase}}/css/font-awesome.min.css">
     {% block css %}
@@ -13,17 +13,31 @@
   </head>
   <body>
     {% block header %}
-      {% block navigation %}
-        <nav class="row">
-          <div class="large-12 columns">
-            <ul class="button-group radius even-4 menu">
-              <li><a class="button" href="/"><i class="fa fa-home"></i> Accueil</a></li>
-              <li><a class="button" href="https://forum.obsifight.net"><i class="fa fa-comments-o"></i> Forum</a></li>
-              <li><a class="button" href="https://obsifight.net"><em><small><i class="fa fa-sign-out"></i> Retourner sur obsifight.net</a></small></em></li>
-            </ul>
-          </div>
-        </nav>
-      {% endblock %}
+      <header>
+        {% block navigation %}
+          <nav class="ui container">
+            <div class="ui menu">
+              <div class="header item">
+                <img src="{{router.getAssetsBase}}/img/logo.png" alt="ObsiFight" />
+              </div>
+              <a class="active item">Accueil</a>
+              <a href="http://forum.obsifight.net" class="item">Forum</a>
+              <div class="right menu">
+                <div class="item">
+                  <div class="ui action left icon input">
+                    <i class="search icon"></i>
+                    <input type="text" placeholder="Pseudo">
+                    <button class="ui button">Chercher</button>
+                  </div>
+                </div>
+                <a href="https://obsifight.net" class="item">
+                  <small><em>Retourner sur obsifight.net</em></small>
+                </a>
+              </div>
+            </div>
+          </nav>
+        {% endblock %}
+      </header>
     {% endblock %}
 
     {% block body %}
@@ -31,18 +45,40 @@
 
     {% block footer %}
       <footer>
-        <div class="row">
-          <div class="large-12 columns">
-            <p class="float-left">Développé par Eywek</p>
-            <p class="float-right">Version : {{version}}</p>
+        <div class="ui inverted vertical footer segment">
+          <div class="ui container">
+            <div class="ui stackable inverted divided equal height stackable grid">
+              <div class="three wide column">
+                <h4 class="ui inverted header">Informations</h4>
+                <div class="ui inverted link list">
+                  <a href="http://forum.obsifight.net/forums/bugs-site-et-boutique.104/" class="item">Signaler un problème</a>
+                  <a href="http://forum.obsifight.net/misc/contact" class="item">Nous contacter</a>
+                  <a href="https://obsifight.net/nous-rejoindre/" class="item">Nous rejoindre</a>
+                  <a href="https://obsifight.net/shop/" class="item">Boutique</a>
+                </div>
+              </div>
+              <div class="three wide column">
+                <h4 class="ui inverted header">Services</h4>
+                <div class="ui inverted link list">
+                  <a href="https://obsifight.net" class="item">Site</a>
+                  <a href="http://forum.obsifight.net" class="item">Forum</a>
+                  <a href="https://wiki.obsifight.net" class="item">Wiki</a>
+                  <a href="http://incidents.obsifight.net" class="item">Incidents</a>
+                </div>
+              </div>
+              <div class="seven wide column">
+                <h4 class="ui inverted header">Crédits</h4>
+                <p>Ce service a été développé pour ObsiFight par <a href="http://eywek.fr">Eywek</a>.</p>
+                <p>Version actuelle du service : {{version}}</p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
     {% endblock %}
 
-    <script src="{{router.getAssetsBase}}/js/vendor/jquery.js"></script>
-    <script src="{{router.getAssetsBase}}/js/vendor/what-input.js"></script>
-    <script src="{{router.getAssetsBase}}/js/vendor/foundation.js"></script>
+    <script src="{{router.getAssetsBase}}/js/jquery-3.1.1.min.js"></script>
+    <script src="{{router.getAssetsBase}}/js/semantic.min.js"></script>
     <script src="{{router.getAssetsBase}}/js/app.js"></script>
     <script src="{{router.getAssetsBase}}/js/stickyFooter.js"></script>
     {% block javascript %}

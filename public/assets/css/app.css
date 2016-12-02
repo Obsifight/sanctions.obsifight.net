@@ -1,67 +1,27 @@
-/* ====
-  Custom body
+/* ======
+*  GLOBAL
 */
 
 body {
-  background-color: #efefef;
+  background: #efefef;
 }
 
-/* ====
-  Custom navigation
+/* ======
+*  NAV
 */
 
-nav {
+header nav {
   margin-top: 20px;
-  width: 100%;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
-nav ul {
-  display: table;
-  width: 100%;
+header nav .ui.menu .header.item img {
+  width: 50px;
 }
 
-nav ul li.button {
-  display: table-cell;
-  width: auto;
-  text-align: center;
-}
-
-nav .button {
-  border: 0;
-  background: #A94545;
-  -webkit-box-shadow: 0;
-  -moz-box-shadow: 0;
-  box-shadow: 0;
-  font-size: 0.75em;
-  color: rgba(255, 255, 255, 0.8);
-  text-transform: uppercase;
-  padding-top: 25px;
-  padding-bottom: 25px;
-  -webkit-box-shadow: 0px 4px 0px #7d2b25;
-  -moz-box-shadow: 0px 4px 0px #7d2b25;
-  box-shadow: 0px 4px 0px #7d2b25;
-}
-nav .button:hover {
-  background: #9c3d3d;
-  color: white;
-}
-nav .button:active {
-  -webkit-box-shadow: 0px 4px 0px #a74d46;
-  -moz-box-shadow: 0px 4px 0px #a74d46;
-  box-shadow: 0px 4px 0px #a74d46;
-  background: #e78129;
-}
-
-/* ====
-  Footer
+/* ======
+*  FOOTER
 */
-
-footer {
-  width: 100%;
-  padding: 10px;
-
-  color: #ececec;
-
-  background-color: #545252;
+.footer.segment {
+    padding: 5em 0em;
 }
