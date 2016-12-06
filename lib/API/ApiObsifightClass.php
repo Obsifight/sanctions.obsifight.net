@@ -58,12 +58,13 @@ class ApiObsifight {
   }
 
   public function get($route, $method = 'GET', $body = array()) {
-    list($body, $code, $error) = $this->__request($route, $method, $body = []);
+    list($body, $code, $error) = $this->__request($route, $method, $body);
     return (object)[
       'status' => ($code === 200),
       'code' => $code,
-      'error' => $body['error'],
-      'body' => $body['data']
+      'success' => $body['status'],
+      'error' => (isset($body['error'])) ? $body['error'] : '',
+      'body' => (isset($body['data'])) ? $body['data'] : ''
     ];
   }
 

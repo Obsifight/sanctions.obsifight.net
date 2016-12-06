@@ -99,7 +99,7 @@
         <p>Nous vous demandons le mot de passe de votre compte sur ObsiFight.net pour permetttre de valider votre identité.</p>
       </div>
 
-      <div class="ui form" id="confirmContest">
+      <form id="confirmContest" method="post" action="#" class="ui form">
         <div class="ajax-message" style="margin-bottom:10px;"></div>
         <div class="field">
           <label>Votre mot de passe</label>
@@ -109,7 +109,7 @@
           <i class="checkmark icon"></i>
           Je confirme ma contestation
         </button>
-      </div>
+      </form>
     </div>
 
   </div>
@@ -120,6 +120,13 @@
 
 {% block javascript %}
   <script type="text/javascript">
+    // confirm var
+    var confirmVars = {
+      username: '',
+      sanction: {},
+      explain: ''
+    }
+
     $('#findSanctions button[type="submit"]').on('click', function (e) {
       e.preventDefault()
 
@@ -142,6 +149,11 @@
           // handle next step with sanction's info
           var sanction = data.data.data
           var type = data.data.type
+
+          // confirm data
+          confirmVars.username = input.val()
+          confirmVars.sanction.id = sanction.id
+          confirmVars.sanction.type = type
 
           // date
           var date = new Date(sanction.date)
@@ -199,7 +211,11 @@
             if (content.length === 0) {
               displayAlert(formDiv, false, "Vous devez spécifier une explication")
               formDiv.addClass('error')
+              return btn.removeClass('loading')
             }
+
+            // confirm vars
+            confirmVars.explain = content
 
             // next step
             nextStep('ExplainSanction', 'ValidContest')
@@ -231,6 +247,67 @@
         }
 
         enableForm(formDiv)
+      })
+    })
+
+    $('#confirmContest').on('submit', function (e) {
+      e.preventDefault()
+
+      var form = $(this)
+      var btn = $(form.find('[type="submit"]'))
+      var input = form.find('input[name="password"]')
+
+      form.removeClass('success').removeClass('error')
+
+      // handle password input
+      if (input.val().length === 0) {
+        displayAlert(form, false, 'Veuillez entrer votre mot de passe !')
+        return form.addClass('error')
+      }
+
+      // handle loading
+      form.addClass('loading')
+
+      // post
+      $.post('{{router.getBase}}/contest', {
+        user: confirmVars.username,
+        sanction: confirmVars.sanction,
+        explain: confirmVars.explain,
+        password: input.val()
+      }, function (data) {
+
+        if (data.status) {
+          displayAlert(form, true, 'La contestation a bien été enregistrée !')
+          form.addClass('success')
+          // redirect
+          window.location = '{{router.getBase}}/contest/' + data.data.contest.id
+        } else {
+          displayAlert(form, false, data.error)
+          form.addClass('error')
+        }
+
+        enableForm(form)
+      }).fail(function (data) {
+
+        switch (data.status) {
+          case 400:
+            displayAlert(form, false, 'La requête est invalide. Veuillez rééssayer.')
+            form.addClass('error')
+            break;
+          case 403:
+            displayAlert(form, false, 'Votre mot de passe est invalide.')
+            form.addClass('error')
+            break;
+          case 404:
+            displayAlert(form, false, "La sanction est introuvable ou n'est plus en cours.")
+            form.addClass('error')
+            break;
+          default:
+            displayAlert(form, false, 'Une erreur inconnue est survenue !')
+            form.addClass('error')
+        }
+
+        enableForm(form)
       })
     })
 
