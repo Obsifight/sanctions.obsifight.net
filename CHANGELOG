@@ -1,6 +1,8 @@
 1.0.0-alpha.6.0
 - Add POST /contest
 - Fix API with body, error messages and data
+- Add .gitignore
+- Add GrumpPHP
 
 1.0.0-alpha.5.0
 - Delete Foundation
