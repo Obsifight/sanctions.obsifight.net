@@ -1,5 +1,5 @@
 <?php
-class ApiObsifight 
+class ApiObsifight {
 
   private $username = '';
   private $password = '';

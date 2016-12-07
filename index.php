@@ -2,6 +2,7 @@
 // ===
 // Init vars
 // ===
+date_default_timezone_set('Europe/Paris');
 
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
