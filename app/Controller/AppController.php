@@ -33,7 +33,7 @@ class AppController {
 
   protected function render($customView = null) {
     if (!empty($customView))
-      $view =  $customView;
+      $view = $customView;
     else
       $view = $this->__getView($this->__getCaller()['class'], $this->__getCaller()['function']);
 
@@ -48,6 +48,14 @@ class AppController {
     $controller = str_replace('Controller', '', $controller);
 
     return $controller . DS . $action . $this->viewExt;
+  }
+
+  public function loadModel($modelName) {
+    if (!isset($this->modelsLoaded->{$modelName})) {
+      // load model class
+      File::import($modelName.'.php', 'app'.DS.'Model');
+      $this->modelsLoaded->{$modelName} = true;
+    }
   }
 
 }

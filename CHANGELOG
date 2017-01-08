@@ -1,3 +1,9 @@
+1.0.0-alpha.7.0
+- Add model Contest
+- Add AppController:loadModel() method
+- Add File class
+- Add unit tests
+
 1.0.0-alpha.6.0
 - Add POST /contest
 - Fix API with body, error messages and data

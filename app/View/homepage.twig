@@ -94,7 +94,7 @@
 
     <div class="step-content" data-step="ValidContest" style="display:none;">
 
-      <div class="ui success message">
+      <div class="ui info message">
         <div class="header">Quel mot de passe ? Et pourquoi ?</div>
         <p>Nous vous demandons le mot de passe de votre compte sur ObsiFight.net pour permetttre de valider votre identité.</p>
       </div>
@@ -238,6 +238,10 @@
             break;
           case 404:
             displayAlert(formDiv, false, "Votre pseudo n'a pas été trouvé dans notre base de données !")
+            formDiv.addClass('error')
+            break;
+          case 403:
+            displayAlert(formDiv, false, "Aucune sanction en cours (ban ou mute) n'ayant pas déjà été contestée n'a été trouvée !")
             formDiv.addClass('error')
             break;
           default:

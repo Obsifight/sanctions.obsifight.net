@@ -7,14 +7,15 @@ date_default_timezone_set('Europe/Paris');
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', dirname(__FILE__));
 
-require ROOT.DS.'lib'.DS.'Utils'.DS.'Functions.php';
-require ROOT.DS.'lib'.DS.'Utils'.DS.'Configuration.class.php';
+require ROOT.DS.'lib'.DS.'Utils'.DS.'File.class.php';
+File::import('Utils/Functions.php');
+File::init('Utils/Configuration');
 
 // ===
 // Configuration
 // ===
 
-require ROOT.DS.'app'.DS.'Config'.DS.'global.php';
+File::import('global.php', 'app' . DS. 'Config');
 
 // ====
 // Init app
@@ -39,7 +40,7 @@ $app = new \Slim\App([
 $container = $app->getContainer();
 
 // Database
-$dbConfig = require ROOT.DS.'app'.DS.'Config'.DS.'database.php';
+$dbConfig = File::import('database.php', 'app' . DS. 'Config');
 if ($dbConfig['enable']) {
   Configuration::set('db', $dbConfig);
 
@@ -76,14 +77,13 @@ $container['view'] = function ($container) {
 // Init route
 // ===
 // paths
-$routes = require ROOT.DS.'app'.DS.'Config'.DS.'routes.php';
-$controllerPath = ROOT.DS.'app'.DS.'Controller'.DS;
+$routes = File::import('routes.php', 'app' . DS. 'Config');
 
 // vars
 $routesList = [];
 
 // app controller
-require $controllerPath . DS. 'AppController.php';
+File::import('AppController.php', 'app' . DS. 'Controller');
 
 // each routes
 foreach ($routes as $route => $controller) {
@@ -107,8 +107,7 @@ foreach ($routes as $route => $controller) {
     $controller = $routesList[$request->getMethod().' '.$request->getUri()->getPath()];
     list($controller, $action) = explode('.', $controller);
     // include + init controller class
-    require $controllerPath . $controller . '.php';
-    $controllerClass = new $controller($app, $request, $response);
+    $controllerClass = File::init($controller . '.php', array($app, $request, $response), null, 'app' . DS . 'Controller');
     return $controllerClass->{$action}($args);
   });
 }
