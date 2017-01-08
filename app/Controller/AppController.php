@@ -3,7 +3,6 @@ class AppController {
 
   private $viewVars = array();
   private $viewExt = '.twig';
-  private $modelsLoaded = (object)array();
 
   public function __construct($app, $request, $response) {
     // Setup vars
@@ -52,6 +51,8 @@ class AppController {
   }
 
   public function loadModel($modelName) {
+    if (!isset($this->modelsLoaded))
+      $this->modelsLoaded = (object)array();
     if (!isset($this->modelsLoaded->{$modelName})) {
       // load model class
       File::import($modelName.'.php', 'app'.DS.'Model');
