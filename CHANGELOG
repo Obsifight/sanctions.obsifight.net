@@ -1,3 +1,8 @@
+1.0.0-alpha.7.1
+- Fix AppController:loadModel() method
+- Add database check on ContestController:search()
+- Add database insert on ContestController:add()
+
 1.0.0-alpha.7.0
 - Add model Contest
 - Add AppController:loadModel() method
