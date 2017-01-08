@@ -3,7 +3,7 @@ class AppController {
 
   private $viewVars = array();
   private $viewExt = '.twig';
-  private $modelsLoaded = array();
+  private $modelsLoaded = (object)array();
 
   public function __construct($app, $request, $response) {
     // Setup vars
