@@ -52,7 +52,7 @@ class AppController {
 
   public function loadModel($modelName) {
     if (!isset($this->modelsLoaded))
-      $this->modelsLoaded = (object)array();
+      $this->modelsLoaded = (object) array();
     if (!isset($this->modelsLoaded->{$modelName})) {
       // load model class
       File::import($modelName.'.php', 'app'.DS.'Model');
