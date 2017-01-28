@@ -1,6 +1,7 @@
 <?php
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use \Slim\Exception\NotFoundException as NotFoundException;
 
 class ContestController extends AppController {
 
@@ -34,7 +35,7 @@ class ContestController extends AppController {
                       })
                       ->first();
       if (!empty($find)) // already contested
-        return $this->response->withJson(['status' => false, 'error' => $result->error], 403);
+        return $this->response->withJson(['status' => false, 'error' => 'Contest already saved.'], 403);
     }
 
     // check if last ban is active
@@ -87,9 +88,19 @@ class ContestController extends AppController {
     // check if active
     if (!$sanction['state'])
       return $this->response->withJson(['status' => false, 'error' => 'Sanction ended.'], 404);
-// TODO : Check if not already in database
-    // create entry in db
+    // Check if not already in database
     $this->loadModel('Contest');
+    $find = Contest::where('sanction_id', $query['sanction']['id'])
+                    ->where('sanction_type', $query['sanction']['type'])
+                    ->where('status', 'PENDING')
+                    ->orWhere(function ($query) {
+                      $query->where('status', 'CLOSED')
+                            ->whereRaw('updated_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)'); // interval 1 month before re-contest
+                    })
+                    ->first();
+    if (!empty($find)) // already contested
+      return $this->response->withJson(['status' => false, 'error' => 'Contest already saved.'], 423);
+    // create entry in db
     $contest = new Contest();
     $contest->sanction_id = $sanction['id'];
     $contest->sanction_type = $query['sanction']['type'];
@@ -99,9 +110,37 @@ class ContestController extends AppController {
     $save = $contest->save();
 
     if ($save)
-      return $this->response->withJson(['status' => true, 'success' => 'Contest added.', 'data' => ['id' => $contest->id]], 200);
+      return $this->response->withJson(['status' => true, 'success' => 'Contest added.', 'data' => ['contest' => ['id' => $contest->id]]], 200);
     else
       return $this->response->withJson(['status' => false, 'success' => 'Error when save contest.'], 500);
+  }
+
+  public function view($id) {
+    // find
+    $this->loadModel('Contest');
+    $findContest = Contest::where('id', $id)->first();
+    if (empty($findContest)) // not found
+      throw new NotFoundException($this->request, $this->response);
+
+    // init api
+    $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+    // find user infos
+    $findUser = $api->get("/user/{$findContest->user_id}");
+    if (!$findUser->status) // error
+      throw new NotFoundException($this->request, $this->response); // user not found
+    $user = $findUser->body;
+    // find sanction
+    $findSanction = $api->get("/sanction/{$findContest->sanction_type}s/{$findContest->sanction_id}");
+    if (!$findSanction->status) // error
+      throw new NotFoundException($this->request, $this->response); // sanction not found
+    $sanction = $findSanction->body;
+
+    // render
+    $this->set('contest', $findContest);
+    $this->set('sanction', $sanction[$findContest->sanction_type]);
+    $this->set('user', $user);
+    $this->set('title', "Contestation de {$user['usernames']['current']}");
+    return $this->render('Contest/view.twig');
   }
 
 }

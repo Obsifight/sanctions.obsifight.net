@@ -302,6 +302,10 @@
             displayAlert(form, false, 'Votre mot de passe est invalide.')
             form.addClass('error')
             break;
+          case 423:
+            displayAlert(form, false, 'La sanction a déjà été contestée.')
+            form.addClass('error')
+            break;
           case 404:
             displayAlert(form, false, "La sanction est introuvable ou n'est plus en cours.")
             form.addClass('error')

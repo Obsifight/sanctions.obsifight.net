@@ -7,6 +7,7 @@
     <title>{{title}} - Sanctions</title>
     <link rel="stylesheet" href="{{router.getAssetsBase}}/css/semantic.min.css">
     <link rel="stylesheet" href="{{router.getAssetsBase}}/css/app.css">
+    <link rel="stylesheet" href="{{router.getAssetsBase}}/css/custom-responsive.css">
     <link rel="stylesheet" href="{{router.getAssetsBase}}/css/font-awesome.min.css">
     {% block css %}
     {% endblock %}
@@ -20,15 +21,11 @@
               <div class="header item">
                 <img src="{{router.getAssetsBase}}/img/logo.png" alt="ObsiFight" />
               </div>
-              <a class="active item">Accueil</a>
+              <a href="/" class="active item">Accueil</a>
               <a href="http://forum.obsifight.net" class="item">Forum</a>
               <div class="right menu">
                 <div class="item">
-                  <div class="ui action left icon input">
-                    <i class="search icon"></i>
-                    <input type="text" placeholder="Pseudo">
-                    <button class="ui button">Chercher</button>
-                  </div>
+                  <button class="ui button">Se connecter</button>
                 </div>
                 <a href="https://obsifight.net" class="item">
                   <small><em>Retourner sur obsifight.net</em></small>

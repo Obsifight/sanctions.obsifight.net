@@ -66,12 +66,15 @@ if ($dbConfig['enable']) {
 // Register component on container
 $container['view'] = function ($container) {
   $view = new \Slim\Views\Twig(ROOT.DS.'app'.DS.'View', [
-      'cache' => (!Configuration::get('debug') && Configuration::get('cache')) ? ROOT.DS.'tmp'.DS.'cache' : false
+      'cache' => (!Configuration::get('debug') && Configuration::get('cache')) ? ROOT.DS.'tmp'.DS.'cache' : false,
+      'debug' => Configuration::get('debug')
   ]);
 
   // Instantiate and add Slim specific extension
   $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
   $view->addExtension(new Slim\Views\TwigExtension($container['router'], $basePath));
+  if (Configuration::get('debug'))
+    $view->addExtension(new Twig_Extension_Debug());
 
   return $view;
 };
@@ -101,17 +104,17 @@ foreach ($routes as $route => $controller) {
   $routesList[strtoupper($method).' '.$route] = $controller;
 
   // init route on app
-  $app->{$method}($route, function (Request $request, Response $response, array $args = array()) {
+  $app->{$method}($route, function (Request $request, Response $response, array $args = array()) use ($route) {
     global $controllerPath;
     global $app;
     global $routesList;
 
     // init vars
-    $controller = $routesList[$request->getMethod().' '.$request->getUri()->getPath()];
+    $controller = $routesList[$request->getMethod().' '.$route];
     list($controller, $action) = explode('.', $controller);
     // include + init controller class
     $controllerClass = File::init($controller . '.php', array($app, $request, $response), null, 'app' . DS . 'Controller');
-    return $controllerClass->{$action}($args);
+    return call_user_func_array(array($controllerClass, $action), $args);
   });
 }
 
