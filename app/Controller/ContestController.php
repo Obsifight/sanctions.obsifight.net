@@ -87,7 +87,7 @@ class ContestController extends AppController {
     // check if active
     if (!$sanction['state'])
       return $this->response->withJson(['status' => false, 'error' => 'Sanction ended.'], 404);
-
+// TODO : Check if not already in database
     // create entry in db
     $this->loadModel('Contest');
     $contest = new Contest();

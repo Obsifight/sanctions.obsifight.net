@@ -40,7 +40,7 @@ $app = new \Slim\App([
 $container = $app->getContainer();
 
 // Database
-$dbConfig = File::import('database.php', 'app' . DS. 'Config');
+$dbConfig = File::import('database.php', 'app' . DS . 'Config');
 if ($dbConfig['enable']) {
   Configuration::set('db', $dbConfig);
 
@@ -51,6 +51,9 @@ if ($dbConfig['enable']) {
 
     $capsule->setAsGlobal();
     $capsule->bootEloquent();
+
+    File::import('Handler.php', 'app' . DS . 'Model' .DS . 'Migrations');
+    MigrationsHandler::run();
 
     return $capsule;
   };
