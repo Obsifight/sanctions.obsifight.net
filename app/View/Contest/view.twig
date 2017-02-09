@@ -23,6 +23,13 @@
 
     <div class="thirteen wide column">
       <div class="ui raised card" style="width: 100%">
+
+        {% if not sanction.state %}
+          <div class="ui active inverted dimmer">
+            <div class="ui large text loader no-loader">Sanction expirée</div>
+          </div>
+        {% endif %}
+
         <div class="content">
           <div class="ui items">
             <div class="item">
@@ -89,38 +96,42 @@
             </div>
             <div class="ui divider"></div>
           {% endfor %}
-          <form class="ui reply form">
-            <div class="field">
-              <textarea></textarea>
-            </div>
-            <div class="ui blue labeled submit icon button">
-              <i class="icon edit"></i> Répondre à la contestation
-            </div>
-          </form>
+          {% if user and sanction.state %}
+            <form class="ui reply form">
+              <div class="field">
+                <textarea></textarea>
+              </div>
+              <div class="ui blue labeled submit icon button">
+                <i class="icon edit"></i> Répondre à la contestation
+              </div>
+            </form>
+          {% endif %}
         </div>
       </div>
 
     </div>
 
-    <div class="column">
-      <div class="ui rail">
-        <div class="ui sticky">
-          <div class="ui segment" style="margin-top:15px">
-            <button class="fluid ui red button" data-tooltip="Le joueur ne pourra plus contester la sanction avant 15 jours." data-inverted>
-              <i class="icon remove"></i>&nbsp;<span class="mobile-hidden">Fermer</span>
-            </button>
-            <div class="ui divider"></div>
-            <button class="fluid ui green button" data-tooltip="Le joueur sera automatique débanni" data-inverted>
-              <i class="icon minus"></i>&nbsp;<span class="mobile-hidden">Débannir</span>
-            </button>
-            <div class="ui divider"></div>
-            <button class="fluid ui teal button" data-tooltip="La sanction du joueur sera réduite" data-inverted>
-              <i class="icon checkmark"></i>&nbsp;<span class="mobile-hidden">Réduire</span>
-            </button>
+    {% if (user) %}
+      <div class="column">
+        <div class="ui rail">
+          <div class="ui sticky">
+            <div class="ui segment" style="margin-top:15px">
+              <button class="fluid ui red button" data-tooltip="Le joueur ne pourra plus contester la sanction avant 15 jours." data-inverted>
+                <i class="icon remove"></i>&nbsp;<span class="mobile-hidden">Fermer</span>
+              </button>
+              <div class="ui divider"></div>
+              <button class="fluid ui green button{{sanction.state ? '' : ' disabled'}}" data-tooltip="Le joueur sera automatique débanni" data-inverted>
+                <i class="icon minus"></i>&nbsp;<span class="mobile-hidden">Débannir</span>
+              </button>
+              <div class="ui divider"></div>
+              <button class="fluid ui teal button{{sanction.state ? '' : ' disabled'}}" data-tooltip="La sanction du joueur sera réduite" data-inverted>
+                <i class="icon checkmark"></i>&nbsp;<span class="mobile-hidden">Réduire</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    {% endif %}
 
   </div>
 </div>

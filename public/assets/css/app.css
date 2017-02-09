@@ -6,6 +6,14 @@ body {
   background: #efefef;
 }
 
+.no-loader:after,
+.no-loader:before {
+  display: none;
+}
+.no-loader {
+  padding-top: 0!important;
+}
+
 /* ======
 *  NAV
 */

@@ -158,6 +158,10 @@
               displayAlert(false, 'Vous devez remplir tous les champs !')
               form.addClass('error')
               break;
+            case 401:
+              displayAlert(false, 'Vous n\'êtes pas assez gradé pour accéder à cet espace !')
+              form.addClass('error')
+              break;
             case 404:
               displayAlert(false, "Votre pseudo n'a pas été trouvé dans notre base de données !")
               form.addClass('error')

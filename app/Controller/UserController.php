@@ -13,20 +13,22 @@ class UserController extends AppController {
 
     // configure api
     $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+
+    // check if ranked
+    $staff = @json_decode(@file_get_contents('http://api.obsifight.net/users/staff/premium'), true);
+    if (!$staff)
+      return $this->response->withJson(['status' => false, 'error' => 'Internal error when get staff.'], 500);
+    if (!in_array($data['username'], $staff['data']['Modérateurs']) && !in_array($data['username'], $staff['data']['Administrateurs']))
+      return $this->response->withJson(['status' => false, 'error' => 'Not ranked.'], 401);
+
     // try to connect
     $result = $api->get('/user/authenticate', 'POST', ['username' => $data['username'], 'password' => $data['password']]);
     if (!$result->status) // error
       return $this->response->withJson(['status' => false, 'error' => $result->error], $result->code);
     $userId = $result->body['user']['id'];
 
-    // get username
-    $result = $api->get('/user/infos/username', 'POST', ['ids' => [$userId]]);
-    if (!$result->status) // error
-      return $this->response->withJson(['status' => false, 'error' => $result->error], $result->code);
-    $username = $result->body['users'][$userId];
-
     // connect
-    $this->session->set('user', ['id' => $userId, 'username' => $username]);
+    $this->session->set('user', ['id' => $userId, 'username' => $data['username']]);
 
     // return true
     return $this->response->withJson(['status' => true, 'success' => 'You have been successfuly logged!'], 200);
