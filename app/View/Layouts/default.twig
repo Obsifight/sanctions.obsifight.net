@@ -145,6 +145,9 @@
           if (!data.status) {
             displayAlert(false, data.error)
             form.addClass('error')
+            btn.removeClass('disabled loading')
+            form.find('input').attr('disabled', false)
+            return
           }
           displayAlert(true, 'Vous vous êtes bien connecté !')
           form.addClass('success')

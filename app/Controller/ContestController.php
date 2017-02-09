@@ -132,23 +132,128 @@ class ContestController extends AppController {
     // get comments
     $this->loadModel('ContestsComment');
     $comments = ContestsComment::where('contest_id', $findContest->id)->get();
-    // find users infos
+    // get history
+    $this->loadModel('ContestsHistory');
+    $histories = ContestsHistory::where('contest_id', $findContest->id)->get();
+    // find users infos + actions array
+    $actions = array();
     $users = array($findContest->user_id);
     foreach ($comments as $comment) {
       array_push($users, $comment->user_id);
+      array_push($actions, ['type' => 'comment', 'data' => $comment]);
+    }
+    foreach ($histories as $history) {
+      array_push($users, $history->user_id);
+      array_push($actions, ['type' => 'history', 'data' => $history]);
     }
     $findUser = $api->get('/user/infos/username', 'POST', ['ids' => $users]);
     if (!$findUser->status) // error
       throw new NotFoundException($this->request, $this->response); // users not found
     $users = $findUser->body['users'];
 
+    // order actions
+    usort($actions, function($a, $b) {
+      return strtotime($a['data']->created_at) - strtotime($b['data']->created_at);
+    });
+
     // render
-    $this->set('comments', $comments);
+    $this->set('actions', $actions);
     $this->set('contest', $findContest);
     $this->set('sanction', $sanction[$findContest->sanction_type]);
     $this->set('usersByIDs', $users);
-    $this->set('title', "Contestation de {$user['usernames']['current']}");
+    $this->set('title', "Contestation de {$users[$findContest->user_id]}");
     return $this->render('Contest/view.twig');
+  }
+
+  public function close($id) {
+    // find
+    $this->loadModel('Contest');
+    $findContest = Contest::where('id', $id)->first();
+    if (empty($findContest)) // not found
+      throw new NotFoundException($this->request, $this->response);
+    // close
+    $contest = Contest::find($id);
+    $contest->status = 'CLOSED';
+    $contest->save();
+    // set into history
+    $this->loadModel('ContestsHistory');
+    $history = new ContestsHistory();
+    $history->contest_id = $id;
+    $history->action = 'CLOSE';
+    $history->user_id = $this->getCurrentUser()['id'];
+    $history->save();
+    // send response
+    return $this->response->withJson(['status' => true, 'success' => 'Contest closed.'], 200);
+  }
+
+  public function edit($id) {
+    // find
+    $this->loadModel('Contest');
+    $findContest = Contest::where('id', $id)->first();
+    if (empty($findContest)) // not found
+      throw new NotFoundException($this->request, $this->response);
+    // check request
+    $data = $this->request->getParsedBody();
+    if (!isset($data['type']) || empty($data['type']) || !in_array($data['type'], ['REDUCE', 'UNBAN']))
+      return $this->response->withJson(['status' => true, 'success' => 'Missing or invalid type.'], 400);
+    if ($data['type'] == 'REDUCE' && (!isset($data['end_date']) || empty($data['end_date']) || date('Y-m-d H:i:s', strtotime($data['end_date'])) != $data['end_date']))
+      return $this->response->withJson(['status' => true, 'success' => 'Missing or invalid duration.'], 400);
+
+    // init api
+    $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+    // action
+    if ($data['type'] == 'REDUCE') {
+      $findSanction = $api->get("/sanction/{$findContest->sanction_type}s/{$findContest->sanction_id}", 'PUT', ['end_date' => date('Y-m-d H:i:s', strtotime($data['end_date']))]);
+      if (!$findSanction->status) // error
+        return $this->response->withJson(['status' => true, 'success' => 'Error when reduce with API.'], 500);
+    } else if ($data['type'] == 'UNBAN') {
+      $findSanction = $api->get("/sanction/{$findContest->sanction_type}s/{$findContest->sanction_id}", 'PUT', ['remove_reason' => 'Contestation acceptée']);
+      if (!$findSanction->status) // error
+        return $this->response->withJson(['status' => true, 'success' => 'Error when reduce with API.'], 500);
+    }
+
+    // set into history
+    $this->loadModel('ContestsHistory');
+    $history = new ContestsHistory();
+    $history->contest_id = $id;
+    $history->action = strtoupper($data['type']);
+    $history->user_id = $this->getCurrentUser()['id'];
+    $history->save();
+
+    // close
+    $contest = Contest::find($id);
+    $contest->status = 'CLOSED';
+    $contest->save();
+    // set into history
+    $this->loadModel('ContestsHistory');
+    $history = new ContestsHistory();
+    $history->contest_id = $id;
+    $history->action = 'CLOSE';
+    $history->user_id = $this->getCurrentUser()['id'];
+    $history->save();
+    // send response
+    return $this->response->withJson(['status' => true, 'success' => 'Contest edited.'], 200);
+  }
+
+  public function addComment($id) {
+    // find
+    $this->loadModel('Contest');
+    $findContest = Contest::where('id', $id)->first();
+    if (empty($findContest)) // not found
+      throw new NotFoundException($this->request, $this->response);
+    // check request
+    $data = $_POST;
+    if (!isset($data['content']) || empty($data['content']))
+      return $this->response->withJson(['status' => true, 'success' => 'Missing content.'], 400);
+    // add command
+    $this->loadModel('ContestsComment');
+    $comment = new ContestsComment();
+    $comment->contest_id = $id;
+    $comment->content = $data['content'];
+    $comment->user_id = $this->getCurrentUser()['id'];
+    $comment->save();
+    // send response
+    return $this->response->withJson(['status' => true, 'success' => 'Commented.'], 200);
   }
 
 }
