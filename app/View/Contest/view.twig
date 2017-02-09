@@ -11,12 +11,15 @@
   $('.formatSeconds').each(function () {
     $(this).html(formatSeconds($(this)))
   })
+  $('.ui.sticky').sticky({
+    context: '.contest-body'
+  })
 </script>
 {% endblock %}
 
 {% block body %}
 <div class="ui container">
-  <div class="ui grid">
+  <div class="ui grid contest-body">
 
     <div class="thirteen wide column">
       <div class="ui raised card" style="width: 100%">
@@ -24,7 +27,7 @@
           <div class="ui items">
             <div class="item">
               <div class="ui tiny image mobile-hide">
-                <img src="http://web.skins.obsifight.fr/head/{{user.usernames.current}}">
+                <img src="http://web.skins.obsifight.fr/head/{{usersByIDs[contest.user_id]}}">
               </div>
               <div class="content">
                 {% if sanction.duration == 'PERMANENT' %}
@@ -33,7 +36,7 @@
                   <span class="ui orange right ribbon label formatSeconds">{{sanction.duration}}</span>
                 {% endif %}
                 <div class="clearfix"></div>
-                <span class="header" style="position: absolute;top: 20px;">{{user.usernames.current}}</span>
+                <span class="header" style="position: absolute;top: 20px;">{{usersByIDs[contest.user_id]}}</span>
                 <div class="meta">
                   <span>
                     {{contest.sanction_type == 'ban' ? 'Bannis' : 'Mute'}}&nbsp;
@@ -65,105 +68,60 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="three wide column">
+
       <div class="ui segment">
-        <button class="fluid ui red button" data-tooltip="Le joueur ne pourra plus contester la sanction avant 15 jours." data-inverted>Fermer</button>
-        <div class="ui divider"></div>
-        <button class="fluid ui green button" data-tooltip="Le joueur sera automatique débanni" data-inverted>Débannir</button>
-        <div class="ui divider"></div>
-        <button class="fluid ui teal button" data-tooltip="La sanction du joueur sera réduite" data-inverted>Réduire</button>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="column" style="margin-top: 20px;">
-    <div class="ui segment">
-      <div class="ui comments">
-        <h3 class="ui dividing header">Commentaires</h3>
-        <div class="comment">
-          <a class="avatar">
-            <img src="/images/avatar/small/matt.jpg">
-          </a>
-          <div class="content">
-            <a class="author">Matt</a>
-            <div class="metadata">
-              <span class="date">Today at 5:42PM</span>
-            </div>
-            <div class="text">
-              How artistic!
-            </div>
-            <div class="actions">
-              <a class="reply">Reply</a>
-            </div>
-          </div>
-        </div>
-        <div class="comment">
-          <a class="avatar">
-            <img src="/images/avatar/small/elliot.jpg">
-          </a>
-          <div class="content">
-            <a class="author">Elliot Fu</a>
-            <div class="metadata">
-              <span class="date">Yesterday at 12:30AM</span>
-            </div>
-            <div class="text">
-              <p>This has been very useful for my research. Thanks as well!</p>
-            </div>
-            <div class="actions">
-              <a class="reply">Reply</a>
-            </div>
-          </div>
-          <div class="comments">
+        <div class="ui comments" style="max-width: none;">
+          <h3 class="ui dividing header">Commentaires</h3>
+          {% for comment in comments %}
             <div class="comment">
               <a class="avatar">
-                <img src="/images/avatar/small/jenny.jpg">
+                <img src="http://web.skins.obsifight.fr/head/{{usersByIDs[comment.user_id]}}">
               </a>
               <div class="content">
-                <a class="author">Jenny Hess</a>
+                <a class="author">{{usersByIDs[comment.user_id]}}</a>
                 <div class="metadata">
-                  <span class="date">Just now</span>
+                  <span class="date moment">{{comment.created_at}}</span>
                 </div>
                 <div class="text">
-                  Elliot you are always so right :)
-                </div>
-                <div class="actions">
-                  <a class="reply">Reply</a>
+                  {{comment.content}}
                 </div>
               </div>
             </div>
-          </div>
+            <div class="ui divider"></div>
+          {% endfor %}
+          <form class="ui reply form">
+            <div class="field">
+              <textarea></textarea>
+            </div>
+            <div class="ui blue labeled submit icon button">
+              <i class="icon edit"></i> Répondre à la contestation
+            </div>
+          </form>
         </div>
-        <div class="comment">
-          <a class="avatar">
-            <img src="/images/avatar/small/joe.jpg">
-          </a>
-          <div class="content">
-            <a class="author">Joe Henderson</a>
-            <div class="metadata">
-              <span class="date">5 days ago</span>
-            </div>
-            <div class="text">
-              Dude, this is awesome. Thanks so much
-            </div>
-            <div class="actions">
-              <a class="reply">Reply</a>
-            </div>
-          </div>
-        </div>
-        <form class="ui reply form">
-          <div class="field">
-            <textarea></textarea>
-          </div>
-          <div class="ui blue labeled submit icon button">
-            <i class="icon edit"></i> Add Reply
-          </div>
-        </form>
       </div>
 
     </div>
-  </div>
 
+    <div class="column">
+      <div class="ui rail">
+        <div class="ui sticky">
+          <div class="ui segment" style="margin-top:15px">
+            <button class="fluid ui red button" data-tooltip="Le joueur ne pourra plus contester la sanction avant 15 jours." data-inverted>
+              <i class="icon remove"></i>&nbsp;<span class="mobile-hidden">Fermer</span>
+            </button>
+            <div class="ui divider"></div>
+            <button class="fluid ui green button" data-tooltip="Le joueur sera automatique débanni" data-inverted>
+              <i class="icon minus"></i>&nbsp;<span class="mobile-hidden">Débannir</span>
+            </button>
+            <div class="ui divider"></div>
+            <button class="fluid ui teal button" data-tooltip="La sanction du joueur sera réduite" data-inverted>
+              <i class="icon checkmark"></i>&nbsp;<span class="mobile-hidden">Réduire</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

@@ -124,21 +124,29 @@ class ContestController extends AppController {
 
     // init api
     $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
-    // find user infos
-    $findUser = $api->get("/user/{$findContest->user_id}");
-    if (!$findUser->status) // error
-      throw new NotFoundException($this->request, $this->response); // user not found
-    $user = $findUser->body;
     // find sanction
     $findSanction = $api->get("/sanction/{$findContest->sanction_type}s/{$findContest->sanction_id}");
     if (!$findSanction->status) // error
       throw new NotFoundException($this->request, $this->response); // sanction not found
     $sanction = $findSanction->body;
+    // get comments
+    $this->loadModel('ContestsComment');
+    $comments = ContestsComment::where('contest_id', $findContest->id)->get();
+    // find users infos
+    $users = array($findContest->user_id);
+    foreach ($comments as $comment) {
+      array_push($users, $comment->user_id);
+    }
+    $findUser = $api->get('/user/infos/username', 'POST', ['ids' => $users]);
+    if (!$findUser->status) // error
+      throw new NotFoundException($this->request, $this->response); // users not found
+    $users = $findUser->body['users'];
 
     // render
+    $this->set('comments', $comments);
     $this->set('contest', $findContest);
     $this->set('sanction', $sanction[$findContest->sanction_type]);
-    $this->set('user', $user);
+    $this->set('usersByIDs', $users);
     $this->set('title', "Contestation de {$user['usernames']['current']}");
     return $this->render('Contest/view.twig');
   }

@@ -36,6 +36,12 @@ $app = new \Slim\App([
     ],
   ],
 ]);
+
+$app->add(new \Slim\Middleware\Session([
+  'name' => 'obsifight_sanctions',
+  'autorefresh' => true,
+  'lifetime' => '5 hours'
+]));
 // Get container
 $container = $app->getContainer();
 

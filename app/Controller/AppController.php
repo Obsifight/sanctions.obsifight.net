@@ -12,14 +12,22 @@ class AppController {
     $this->db = $this->container->get('db');
     $this->request = $request;
     $this->response = $response;
+    $this->session = new \SlimSession\Helper;
 
     // Setup view vars
     $this->__setViewVars();
   }
 
+  protected function getCurrentUser() {
+    if ($user = $user = $this->session->get('user'))
+      return $user;
+    return false;
+  }
+
   private function __setViewVars() {
     $this->set('request', $this->request);
     $this->set('response', $this->response);
+    $this->set('user', $this->getCurrentUser());
     $this->set('router', array(
       'getBase' => $this->request->getUri()->getBaseUrl(),
       'getAssetsBase' => $this->request->getUri()->getBaseUrl() . '/public/assets'

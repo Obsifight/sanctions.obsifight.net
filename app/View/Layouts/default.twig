@@ -25,7 +25,15 @@
               <a href="http://forum.obsifight.net" class="item">Forum</a>
               <div class="right menu">
                 <div class="item">
-                  <button class="ui button">Se connecter</button>
+                  {% if (user) %}
+                    <div class="ui primary small button">
+                      <i class="user icon"></i> {{user.username}}
+                    </div>
+                  {% else %}
+                    <a class="ui teal small button" onclick="$('.ui.small.modal').modal('show')">
+                      <i class="user icon"></i> Se connecter
+                    </a>
+                  {% endif %}
                 </div>
                 <a href="https://obsifight.net" class="item">
                   <small><em>Retourner sur obsifight.net</em></small>
@@ -74,10 +82,101 @@
       </footer>
     {% endblock %}
 
+    <div class="ui small modal">
+      <i class="close icon"></i>
+      <div class="header">
+        Se connecter
+      </div>
+      <div class="content">
+        <form class="ui form" id="loginForm">
+          <div class="field">
+            <label>Pseudo</label>
+            <input type="text" name="username" placeholder="Pseudo sur obsifight.net">
+          </div>
+          <div class="field">
+            <label>Mot de passe</label>
+            <input type="password" name="password" placeholder="Mot de passe sur obsifight.net">
+          </div>
+          <div class="ajax-message"></div>
+        </form>
+      </div>
+      <div class="actions">
+        <div class="ui black deny button">
+          Annuler
+        </div>
+        <div id="loginButton" class="ui teal right labeled icon button">
+          Me connecter
+          <i class="checkmark icon"></i>
+        </div>
+      </div>
+    </div>
     <script src="{{router.getAssetsBase}}/js/jquery-3.1.1.min.js"></script>
     <script src="{{router.getAssetsBase}}/js/semantic.min.js"></script>
     <script src="{{router.getAssetsBase}}/js/app.js"></script>
     <script src="{{router.getAssetsBase}}/js/stickyFooter.js"></script>
+    <script type="text/javascript">
+      $('#loginButton').on('click', function (e) {
+        e.preventDefault()
+        var btn = $(this)
+        var form = $('form#loginForm')
+
+        // disable btn & inputs
+        form.removeClass('error success')
+        btn.addClass('disabled loading')
+        form.find('input').attr('disabled', true)
+
+        // util
+        function displayAlert(type, msg) {
+          var div = form.find('.ajax-message').hide()
+          if (msg) {
+            if (type)
+              div.html('<div class="ui success message"><div class="header">Succès</div><p>' + msg + '</p></div>')
+            else
+              div.html('<div class="ui error message"><div class="header">Erreur</div><p>' + msg + '</p></div>')
+            div.fadeIn(150)
+          }
+        }
+
+        // send request
+        $.post('{{router.getBase}}/user/login', {
+          username: form.find('input[name="username"]').val(),
+          password: form.find('input[name="password"]').val()
+        }, function (data) {
+          if (!data.status) {
+            displayAlert(false, data.error)
+            form.addClass('error')
+          }
+          displayAlert(true, 'Vous vous êtes bien connecté !')
+          form.addClass('success')
+          setTimeout(function () {
+            window.location = '?'
+          }, 2000)
+        }).fail(function (data) {
+          // display error
+          switch (data.status) {
+            case 400:
+              displayAlert(false, 'Vous devez remplir tous les champs !')
+              form.addClass('error')
+              break;
+            case 404:
+              displayAlert(false, "Votre pseudo n'a pas été trouvé dans notre base de données !")
+              form.addClass('error')
+              break;
+            case 403:
+              displayAlert(false, "Vos identifiants sont incorrects !")
+              form.addClass('error')
+              break;
+            default:
+              displayAlert(false, 'Une erreur inconnue est survenue !')
+              form.addClass('error')
+
+          }
+          // enable form
+          btn.removeClass('disabled loading')
+          form.find('input').attr('disabled', false)
+        })
+      })
+    </script>
     {% block javascript %}
     {% endblock %}
   </body>
