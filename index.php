@@ -86,6 +86,36 @@ $container['view'] = function ($container) {
 };
 
 // ===
+// ERRORS
+// ===
+
+$container['notFoundHandler'] = function ($c) {
+  return function ($request, $response) use ($c) {
+    $session = new \SlimSession\Helper;
+    return $c['view']->render($response->withStatus(404), 'Errors/404.twig', [
+      'title' => 'Page introuvable',
+      'router' => [
+        'getBase' => $request->getUri()->getBaseUrl(),
+        'getAssetsBase' => $request->getUri()->getBaseUrl() . '/public/assets'
+      ],
+      'user' => ($user = $session->get('user')) ? $user : false
+    ]);
+  };
+};
+$container['errorHandler'] = function ($c) {
+  return function ($request, $response, $exception) use ($c) {
+    return $c['view']->render($response->withStatus(500), 'Errors/500.twig', [
+      'title' => 'Erreur interne',
+      'router' => [
+        'getBase' => $request->getUri()->getBaseUrl(),
+        'getAssetsBase' => $request->getUri()->getBaseUrl() . '/public/assets'
+      ],
+      'user' => ($user = $session->get('user')) ? $user : false
+    ]);
+  };
+};
+
+// ===
 // Init route
 // ===
 // paths

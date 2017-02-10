@@ -1,0 +1,349 @@
+{% extends "./Layouts/default.twig" %}
+
+{% block body %}
+
+<div class="ui container">
+
+  <h2 class="ui center aligned icon header">
+    <i class="circular ban icon"></i>
+    Contester une sanction
+  </h2>
+
+  <div class="ui three top attached ordered steps">
+    <div class="active step" id="stepSetUsername">
+      <div class="content">
+        <div class="title">Pseudo</div>
+        <div class="description">Entrez votre pseudo</div>
+      </div>
+    </div>
+    <div class="disabled step" id="stepExplainSanction">
+      <div class="content">
+        <div class="title">Explications</div>
+        <div class="description">Entrez une explication</div>
+      </div>
+    </div>
+    <div class="disabled step" id="stepValidContest">
+      <div class="content">
+        <div class="title">Confirmer</div>
+        <div class="description">Confirmez avec votre mot de passe</div>
+      </div>
+    </div>
+  </div>
+  <div class="ui attached segment">
+
+    <div class="step-content" data-step="SetUsername">
+      <div class="ui form" id="findSanctions">
+        <div class="ajax-message" style="margin-bottom:10px;"></div>
+        <div class="field">
+          <label>Pseudo</label>
+          <input type="text" placeholder="Eywek" name="pseudo">
+        </div>
+        <button type="submit" class="ui right labeled icon blue button">
+          <i class="right arrow icon"></i>
+          Valider
+        </button>
+      </div>
+    </div>
+
+    <div class="step-content" data-step="ExplainSanction" style="display:none;">
+      <div class="ui stackable two column grid">
+
+        <div class="sixteen wide mobile eight wide tablet four wide computer column">
+          <div class="ui card">
+            <div class="content">
+              <div class="header">Informations</div>
+              <div class="meta" data-sanction-info="date">Le ../.. à ..h..</div>
+            </div>
+            <div class="content">
+              <h4 class="ui sub header" data-sanction-info="msg-type">Vous avez été ...</h4>
+              <div class="ui small feed">
+
+                <div class="ui visible message" style="margin-bottom:0px;" data-sanction-info="reason">
+                  ...
+                </div>
+
+                <a class="ui pointing blue image floated right label" style="margin-top:5px;" data-sanction-info="staff-username">
+                  ...
+                </a>
+
+              </div>
+            </div>
+            <div class="extra content">
+              <a class="fluid ui negative button" style="display:none;" data-sanction-info="duration-permanent">Permanent</a>
+              <a class="fluid ui orange button" style="display:none;" data-sanction-info="duration">Temporaire (<span class="sanction-duration">N/A</span>)</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="sixteen wide mobile eight wide tablet twelve wide computer column">
+          <div class="ui form">
+            <div class="ajax-message" style="margin-bottom:10px;"></div>
+            <div class="field">
+              <label>Pourquoi nous devrions réduire votre sanction ?</label>
+              <textarea name="user-reason"></textarea>
+            </div>
+            <button id="confirmExplain" class="ui labeled icon green right floated button">
+              <i class="checkmark icon"></i>
+              Confirmer
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="step-content" data-step="ValidContest" style="display:none;">
+
+      <div class="ui info message">
+        <div class="header">Quel mot de passe ? Et pourquoi ?</div>
+        <p>Nous vous demandons le mot de passe de votre compte sur ObsiFight.net pour permetttre de valider votre identité.</p>
+      </div>
+
+      <form id="confirmContest" method="post" action="#" class="ui form">
+        <div class="ajax-message" style="margin-bottom:10px;"></div>
+        <div class="field">
+          <label>Votre mot de passe</label>
+          <input type="password" placeholder="************" name="password">
+        </div>
+        <button type="submit" class="ui labeled icon teal button">
+          <i class="checkmark icon"></i>
+          Je confirme ma contestation
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript">
+    // confirm var
+    var confirmVars = {
+      username: '',
+      sanction: {},
+      explain: ''
+    }
+
+    $('#findSanctions button[type="submit"]').on('click', function (e) {
+      e.preventDefault()
+
+      var btn = $(this)
+      var input = $('#findSanctions').find('input')
+      var formDiv = $('#findSanctions')
+
+      formDiv.removeClass('success').removeClass('error')
+
+      // handle loading
+      formDiv.addClass('loading')
+
+      // query
+      $.post('{{router.getBase}}/contest/search', {user: input.val()}, function (data) {
+
+        if (data.status) {
+          displayAlert(formDiv, true, 'Une sanction a bien été trouvée !')
+          formDiv.addClass('success')
+
+          // handle next step with sanction's info
+          var sanction = data.data.data
+          var type = data.data.type
+
+          // confirm data
+          confirmVars.username = input.val()
+          confirmVars.sanction.id = sanction.id
+          confirmVars.sanction.type = type
+
+          // date
+          var date = new Date(sanction.date)
+          dateFormatted = 'Le '
+          dateFormatted += (date.getDate().toString().length === 1) ? '0' + date.getDate() : date.getDate() // day
+          dateFormatted += '/'
+          dateFormatted += (date.getMonth().toString().length === 1) ? '0' + date.getMonth() : date.getMonth() // month
+          if (date.getYear() !== (new Date()).getYear()) // not this year
+            dateFormatted += '/' + date.getFullYear()
+          dateFormatted += ' à '
+          dateFormatted += (date.getHours().toString().length === 1) ? '0' + date.getHours() : date.getHours() // hour
+          dateFormatted += 'h'
+          dateFormatted += (date.getMinutes().toString().length === 1) ? '0' + date.getMinutes() : date.getMinutes() // minutes
+          $('[data-sanction-info="date"]').html(dateFormatted)
+
+          // type
+          if (type === 'ban') // ban
+            $('[data-sanction-info="msg-type"]').html('Vous avez été bannis')
+          else if (type === 'mute') // mute
+            $('[data-sanction-info="msg-type"]').html('Vous avez été réduis au silence')
+          else
+            throw new Error('Invalid sanction type')
+
+          // reason
+          $('[data-sanction-info="reason"]').html(sanction.reason)
+
+          // staff
+          $('[data-sanction-info="staff-username"]').html(sanction.staff.username)
+
+          // duration
+          if (sanction.duration === 'PERMANENT')
+            $('[data-sanction-info="duration-permanent"]').show()
+          else {
+            $('[data-sanction-info="duration"]').show()
+            $('.sanction-duration').html(formatSeconds(sanction.duration))
+          }
+
+          // display next step
+          setTimeout(function () {
+            nextStep('SetUsername', 'ExplainSanction')
+          }, 500)
+
+          // confirm
+          $('#confirmExplain').on('click', function (e) {
+            e.preventDefault()
+
+            var btn = $(this)
+            var content = $('textarea[name="user-reason"]').val()
+            var formDiv = btn.parent()
+
+            // loading
+            btn.addClass('loading')
+
+            // check if not empty
+            if (content.length === 0) {
+              displayAlert(formDiv, false, "Vous devez spécifier une explication")
+              formDiv.addClass('error')
+              return btn.removeClass('loading')
+            }
+
+            // confirm vars
+            confirmVars.explain = content
+
+            // next step
+            nextStep('ExplainSanction', 'ValidContest')
+            btn.removeClass('loading')
+
+          })
+
+        } else {
+          displayAlert(formDiv, false, "Aucune sanction en cours (ban ou mute) n'a été trouvée !")
+          formDiv.addClass('error')
+        }
+
+        enableForm(formDiv)
+      }).fail(function (data) {
+
+        switch (data.status) {
+          case 501:
+            displayAlert(formDiv, false, 'Vous devez fournir un pseudo !')
+            formDiv.addClass('error')
+            break;
+          case 404:
+            displayAlert(formDiv, false, "Votre pseudo n'a pas été trouvé dans notre base de données !")
+            formDiv.addClass('error')
+            break;
+          case 403:
+            displayAlert(formDiv, false, "Aucune sanction en cours (ban ou mute) n'ayant pas déjà été contestée n'a été trouvée !")
+            formDiv.addClass('error')
+            break;
+          default:
+            displayAlert(formDiv, false, 'Une erreur inconnue est survenue !')
+            formDiv.addClass('error')
+
+        }
+
+        enableForm(formDiv)
+      })
+    })
+
+    $('#confirmContest').on('submit', function (e) {
+      e.preventDefault()
+
+      var form = $(this)
+      var btn = $(form.find('[type="submit"]'))
+      var input = form.find('input[name="password"]')
+
+      form.removeClass('success').removeClass('error')
+
+      // handle password input
+      if (input.val().length === 0) {
+        displayAlert(form, false, 'Veuillez entrer votre mot de passe !')
+        return form.addClass('error')
+      }
+
+      // handle loading
+      form.addClass('loading')
+
+      // post
+      $.post('{{router.getBase}}/contest', {
+        user: confirmVars.username,
+        sanction: confirmVars.sanction,
+        explain: confirmVars.explain,
+        password: input.val()
+      }, function (data) {
+
+        if (data.status) {
+          displayAlert(form, true, 'La contestation a bien été enregistrée !')
+          form.addClass('success')
+          // redirect
+          window.location = '{{router.getBase}}/contest/' + data.data.contest.id
+        } else {
+          displayAlert(form, false, data.error)
+          form.addClass('error')
+        }
+
+        enableForm(form)
+      }).fail(function (data) {
+
+        switch (data.status) {
+          case 400:
+            displayAlert(form, false, 'La requête est invalide. Veuillez rééssayer.')
+            form.addClass('error')
+            break;
+          case 403:
+            displayAlert(form, false, 'Votre mot de passe est invalide.')
+            form.addClass('error')
+            break;
+          case 423:
+            displayAlert(form, false, 'La sanction a déjà été contestée.')
+            form.addClass('error')
+            break;
+          case 404:
+            displayAlert(form, false, "La sanction est introuvable ou n'est plus en cours.")
+            form.addClass('error')
+            break;
+          default:
+            displayAlert(form, false, 'Une erreur inconnue est survenue !')
+            form.addClass('error')
+        }
+
+        enableForm(form)
+      })
+    })
+
+    function displayAlert(formDiv, type, msg) {
+      var div = formDiv.find('.ajax-message').hide()
+      if (msg) {
+        if (type)
+          div.html('<div class="ui success message"><div class="header">Succès</div><p>' + msg + '</p></div>')
+        else
+          div.html('<div class="ui error message"><div class="header">Erreur</div><p>' + msg + '</p></div>')
+        div.fadeIn(150)
+      }
+    }
+    function enableForm(formDiv) {
+      formDiv.removeClass('loading')
+    }
+    function nextStep(previous, next) {
+      var previousStepDiv = $('#step' + previous)
+      var previousStepContent = $('.step-content[data-step="' + previous + '"]')
+
+      var nextStepDiv = $('#step' + next)
+      var nextStepContent = $('.step-content[data-step="' + next + '"]')
+
+      previousStepDiv.addClass('completed').removeClass('active')
+      nextStepDiv.addClass('active').removeClass('disabled')
+
+      previousStepContent.transition('slide right')
+      nextStepContent.transition('slide left')
+    }
+  </script>
+{% endblock %}

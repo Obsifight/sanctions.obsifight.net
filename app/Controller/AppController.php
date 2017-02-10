@@ -19,7 +19,7 @@ class AppController {
   }
 
   protected function getCurrentUser() {
-    if ($user = $user = $this->session->get('user'))
+    if ($user = $this->session->get('user'))
       return $user;
     return false;
   }

@@ -2,7 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Slim\Exception\NotFoundException as NotFoundException;
-use \Slim\Exception\BadRequestException as BadRequestException;
 
 class UserController extends AppController {
 
