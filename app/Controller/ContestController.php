@@ -305,7 +305,7 @@ class ContestController extends AppController {
     $this->set('pendingContests', $pendingContests);
     $this->set('closedContests', $closedContests);
     $this->set('title', 'Liste des contestations');
-    return $this->render('contest/list.twig');
+    return $this->render('Contest/list.twig');
   }
 
 }
