@@ -167,7 +167,12 @@
 
       <div class="field">
         <label>Quand voulez-vous que la sanction se termine ?</label>
-        <input type="text" name="end_date" placeholder="Format: YYYY-MM-DD HH:MM:SS">
+        <div class="ui calendar" id="calendar">
+          <div class="ui input left icon">
+            <i class="calendar icon"></i>
+            <input type="text" name="end_date" placeholder="Format: YYYY-MM-DD HH:MM:SS">
+          </div>
+        </div>
       </div>
 
     </form>
@@ -187,6 +192,10 @@
 {% block javascript %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/fr.js"></script>
+
+<link href="{{router.getAssetsBase}}/css/calendar.min.css" rel="stylesheet" type="text/css" />
+<script src="{{router.getAssetsBase}}/js/calendar.min.js"></script>
+
 <script type="text/javascript">
   moment().locale('fr')
   $('.moment').each(function () {
@@ -226,6 +235,39 @@
     e.preventDefault()
     // show modal
     $('#reduceModal').modal('show')
+    $('#calendar').calendar({
+      ampm: false,
+      text: {
+        days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+        months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+        monthsShort: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+        today: 'Aujourd\'hui',
+        now: 'Maintenant'
+      },
+      formatter: {
+        date: function (date, settings) {
+          if (!date) return ''
+          var day = date.getDate()
+          var month = date.getMonth() + 1
+          var year = date.getFullYear()
+          if (month.toString().length === 1)
+            month = '0' + month
+          if (day.toString().length === 1)
+            day = '0' + day
+          return year + '-' + month + '-' + day
+        },
+        time: function (date, settings) {
+          if (!date) return ''
+          var hour = date.getHours()
+          var minute = date.getMinutes()
+          if (hour.toString().length === 1)
+            hour = '0' + hour
+          if (minute.toString().length === 1)
+            minute = '0' + minute
+          return hour + ':' + minute + ':' + '00'
+        }
+      }
+    })
     // submit form
     $('#reduceBtn').on('click', function (e) {
       e.preventDefault()

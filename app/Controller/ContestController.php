@@ -28,10 +28,12 @@ class ContestController extends AppController {
       $this->loadModel('Contest');
       $find = Contest::where('sanction_id', $result->body[$type][0]['id'])
                       ->where('sanction_type', substr($type, 0, -1))
-                      ->where('status', 'PENDING')
-                      ->orWhere(function ($query) {
-                        $query->where('status', 'CLOSED')
-                              ->whereRaw('updated_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)'); // interval 1 month before re-contest
+                      ->where(function ($query) {
+                        $query->where('status', 'PENDING')
+                              ->orWhere(function ($q) {
+                                $q->where('status', 'CLOSED')
+                                      ->whereRaw('updated_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)'); // interval 1 month before re-contest
+                              });
                       })
                       ->first();
       if (!empty($find)) // already contested
@@ -92,10 +94,12 @@ class ContestController extends AppController {
     $this->loadModel('Contest');
     $find = Contest::where('sanction_id', $query['sanction']['id'])
                     ->where('sanction_type', $query['sanction']['type'])
-                    ->where('status', 'PENDING')
-                    ->orWhere(function ($query) {
-                      $query->where('status', 'CLOSED')
-                            ->whereRaw('updated_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)'); // interval 1 month before re-contest
+                    ->where(function ($query) {
+                      $query->where('status', 'PENDING')
+                            ->orWhere(function ($q) {
+                              $q->where('status', 'CLOSED')
+                                    ->whereRaw('updated_at >= DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)'); // interval 1 month before re-contest
+                            });
                     })
                     ->first();
     if (!empty($find)) // already contested
