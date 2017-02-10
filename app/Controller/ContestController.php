@@ -6,7 +6,7 @@ use \Slim\Exception\NotFoundException as NotFoundException;
 class ContestController extends AppController {
 
   public function index() {
-    $this->set('title', 'Liste des contestations');
+    $this->set('title', 'Contester une sanction');
     return $this->render('homepage.twig');
   }
 
@@ -277,6 +277,35 @@ class ContestController extends AppController {
     $comment->save();
     // send response
     return $this->response->withJson(['status' => true, 'success' => 'Commented.'], 200);
+  }
+
+  public function listContests() {
+    if (!$this->getCurrentUser())
+      return $this->response->withStatus(403)->withHeader('Location', '/contest');
+    // find contests
+    $this->loadModel('Contest');
+    $pendingContests = Contest::where('status', 'PENDING')->get();
+    $closedContests = Contest::where('status', 'CLOSED')->orderBy('updated_at', 'DESC')->limit(10)->get();
+    // users names
+    $users = array();
+    foreach ($pendingContests as $contest) {
+      array_push($users, $contest->user_id);
+    }
+    foreach ($closedContests as $contest) {
+      array_push($users, $contest->user_id);
+    }
+    // configure api
+    $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+    $findUser = $api->get('/user/infos/username', 'POST', ['ids' => $users]);
+    if (!$findUser->status) // error
+      throw new NotFoundException($this->request, $this->response); // users not found
+    $users = $findUser->body['users'];
+    // render
+    $this->set('usersByIDs', $users);
+    $this->set('pendingContests', $pendingContests);
+    $this->set('closedContests', $closedContests);
+    $this->set('title', 'Liste des contestations');
+    return $this->render('contest/list.twig');
   }
 
 }

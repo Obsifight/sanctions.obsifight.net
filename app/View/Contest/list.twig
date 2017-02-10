@@ -1,0 +1,107 @@
+{% extends "./Layouts/default.twig" %}
+
+{% block body %}
+<div class="ui container">
+  <div class="ui grid">
+    <div class="sixteen wide column">
+      <div class="ui segment">
+        <h2 class="ui header">
+          <i class="pause icon"></i>
+          <div class="content">
+            Contestations
+            <div class="sub header">En attente</div>
+          </div>
+        </h2>
+        <div class="ui divider"></div>
+
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>Joueur</th>
+              <th>Type de sanction</th>
+              <th>Date de création</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contest in pendingContests %}
+              <tr>
+                <td>{{usersByIDs[contest.user_id]}}</td>
+                <td>
+                  {% if contest.sanction_type == 'ban' %}
+                    <div class="ui red horizontal label">Ban</div>
+                  {% else %}
+                    <div class="ui orange horizontal label">Mute</div>
+                  {% endif %}
+                </td>
+                <td class="moment">{{contest.created_at}}</td>
+                <td>
+                  <a href="{{router.getBase}}/contest/{{contest.id}}" class="ui primary button">
+                    Voir la contestation
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sixteen wide column">
+      <div class="ui segment">
+        <h2 class="ui header">
+          <i class="remove icon"></i>
+          <div class="content">
+            Contestations
+            <div class="sub header">Fermées</div>
+          </div>
+        </h2>
+        <div class="ui divider"></div>
+
+        <table class="ui celled table">
+          <thead>
+            <tr>
+              <th>Joueur</th>
+              <th>Type de sanction</th>
+              <th>Date de création</th>
+              <th>Date de fermeture</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contest in closedContests %}
+              <tr>
+                <td>{{usersByIDs[contest.user_id]}}</td>
+                <td>
+                  {% if contest.sanction_type == 'ban' %}
+                    <div class="ui red horizontal label">Ban</div>
+                  {% else %}
+                    <div class="ui orange horizontal label">Mute</div>
+                  {% endif %}
+                </td>
+                <td class="moment">{{contest.created_at}}</td>
+                <td class="moment">{{contest.updated_at}}</td>
+                <td>
+                  <a href="{{router.getBase}}/contest/{{contest.id}}" class="ui primary button">
+                    Voir la contestation
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/fr.js"></script>
+  <script type="text/javascript">
+    moment().locale('fr')
+    $('.moment').each(function () {
+      $(this).html(moment($(this).html()).fromNow())
+    })
+  </script>
+{% endblock %}

@@ -35,9 +35,15 @@
                     </a>
                   {% endif %}
                 </div>
-                <a href="https://obsifight.net" class="item">
-                  <small><em>Retourner sur obsifight.net</em></small>
-                </a>
+                {% if (user) %}
+                  <a href="{{router.getBase}}/contest/list" class="item">
+                    <small>Voir les contestations</small>
+                  </a>
+                {% else %}
+                  <a href="https://obsifight.net" class="item">
+                    <small><em>Retourner sur obsifight.net</em></small>
+                  </a>
+                {% endif %}
               </div>
             </div>
           </nav>
