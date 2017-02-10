@@ -7,7 +7,7 @@ class ContestController extends AppController {
 
   public function index() {
     $this->set('title', 'Contester une sanction');
-    return $this->render('contest/homepage.twig');
+    return $this->render('Contest/homepage.twig');
   }
 
   public function search() {

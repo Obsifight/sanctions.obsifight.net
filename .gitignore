@@ -5,3 +5,5 @@ tmp/logs/*
 vendor
 composer.lock
 app/Config/database.php
+grumphp.yml
+app/Config/global.php

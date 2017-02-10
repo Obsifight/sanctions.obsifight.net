@@ -98,7 +98,8 @@ $container['notFoundHandler'] = function ($c) {
         'getBase' => $request->getUri()->getBaseUrl(),
         'getAssetsBase' => $request->getUri()->getBaseUrl() . '/public/assets'
       ],
-      'user' => ($user = $session->get('user')) ? $user : false
+      'user' => ($user = $session->get('user')) ? $user : false,
+      'version' => trim(file_get_contents(ROOT.DS.'VERSION'))
     ]);
   };
 };
@@ -111,7 +112,8 @@ $container['errorHandler'] = function ($c) {
         'getBase' => $request->getUri()->getBaseUrl(),
         'getAssetsBase' => $request->getUri()->getBaseUrl() . '/public/assets'
       ],
-      'user' => ($user = $session->get('user')) ? $user : false
+      'user' => ($user = $session->get('user')) ? $user : false,
+      'version' => trim(file_get_contents(ROOT.DS.'VERSION'))
     ]);
   };
 };
