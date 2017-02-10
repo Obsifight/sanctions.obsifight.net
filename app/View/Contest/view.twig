@@ -98,15 +98,32 @@
             {% endif %}
           {% endfor %}
           <div id="comment"></div>
-          {% if user and sanction.state and contest.status == 'PENDING' %}
+          {% if sanction.state and contest.status == 'PENDING' %}
             <form class="ui reply form" id="addComment">
               <div class="ajax-message" style="margin-bottom:5px;"></div>
               <div class="field">
                 <textarea name="content"></textarea>
               </div>
-              <button type="submit" class="ui blue labeled submit icon button">
-                <i class="icon edit"></i> Répondre à la contestation
-              </button>
+              <div style="float:right;">
+                {% if not user %}
+              </div>
+              <div style="float:left;">
+                  Commenter en tant que
+                  <a class="ui image label">
+                    <img src="http://web.skins.obsifight.fr/head/{{usersByIDs[contest.user_id]}}">
+                    {{usersByIDs[contest.user_id]}}
+                  </a>
+                </div>
+              <div style="float:right;">
+                  <div class="ui input">
+                    <input type="password" name="password" placeholder="Mot de passe">
+                  </div>
+                {% endif %}
+                <button type="submit" class="ui blue labeled submit icon button">
+                  <i class="icon edit"></i> Répondre à la contestation
+                </button>
+              </div>
+              <br><br>
             </form>
           {% endif %}
         </div>
@@ -294,7 +311,10 @@
 
     // post
     $.post('{{router.getBase}}/contest/{{contest.id}}/comment', {
-      content: form.find('textarea').val()
+      content: form.find('textarea').val(),
+      {% if not user %}
+        password: form.find('input[name="password"]').val()
+      {% endif %}
     }, function (data) {
       if (!data.status) {
         displayAlert(false, 'Une erreur inconnue est survenue !')
@@ -309,10 +329,18 @@
       var comment = ''
       comment += '<div class="comment">'
         comment += '<a class="avatar">'
-          comment += '<img src="http://web.skins.obsifight.fr/head/{{user.username}}">'
+          {% if user %}
+            comment += '<img src="http://web.skins.obsifight.fr/head/{{user.username}}">'
+          {% else %}
+            comment += '<img src="http://web.skins.obsifight.fr/head/{{usersByIDs[contest.user_id]}}">'
+          {% endif %}
         comment += '</a>'
         comment += '<div class="content">'
-          comment += '<a class="author">{{user.username}}</a>'
+          {% if user %}
+            comment += '<a class="author">{{user.username}}</a>'
+          {% else %}
+            comment += '<a class="author">{{usersByIDs[contest.user_id]}}</a>'
+          {% endif %}
           comment += '<div class="metadata">'
             comment += '<span class="date moment">' + moment().fromNow() + '</span>'
           comment += '</div>'
@@ -331,6 +359,11 @@
           displayAlert(false, 'Vous devez remplir tous les champs !')
           form.addClass('error')
           break;
+        case 403:
+          displayAlert(false, "Vos identifiants sont incorrects !")
+          form.addClass('error')
+          break;
+
         default:
           displayAlert(false, 'Une erreur inconnue est survenue !')
           form.addClass('error')

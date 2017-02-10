@@ -166,6 +166,8 @@ class ContestController extends AppController {
   }
 
   public function close($id) {
+    if (!$this->getCurrentUser())
+      return $this->response->withJson(['status' => false, 'error' => 'Not logged.'], 403);
     // find
     $this->loadModel('Contest');
     $findContest = Contest::where('id', $id)->first();
@@ -187,6 +189,8 @@ class ContestController extends AppController {
   }
 
   public function edit($id) {
+    if (!$this->getCurrentUser())
+      return $this->response->withJson(['status' => false, 'error' => 'Not logged.'], 403);
     // find
     $this->loadModel('Contest');
     $findContest = Contest::where('id', $id)->first();
@@ -245,12 +249,31 @@ class ContestController extends AppController {
     $data = $_POST;
     if (!isset($data['content']) || empty($data['content']))
       return $this->response->withJson(['status' => true, 'success' => 'Missing content.'], 400);
+    if (!$this->getCurrentUser() && (!isset($data['password']) || empty($data['password'])))
+      return $this->response->withJson(['status' => true, 'success' => 'Missing password.'], 400);
+    // check credentials if not logged
+    if (!$this->getCurrentUser()) {
+      // configure api
+      $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+      // get username
+      $findUser = $api->get('/user/infos/username', 'POST', ['ids' => [$findContest->user_id]]);
+      if (!$findUser->status) // error
+        throw new NotFoundException($this->request, $this->response); // users not found
+      $username = $findUser->body['users'][$findContest->user_id];
+      // check credentials
+      $result = $api->get('/user/authenticate', 'POST', ['username' => $username, 'password' => $data['password']]);
+      if (!$result->status) // error
+        return $this->response->withJson(['status' => false, 'error' => $result->error], $result->code);
+      $userId = $result->body['user']['id'];
+    } else {
+      $userId = $this->getCurrentUser()['id'];
+    }
     // add command
     $this->loadModel('ContestsComment');
     $comment = new ContestsComment();
     $comment->contest_id = $id;
     $comment->content = $data['content'];
-    $comment->user_id = $this->getCurrentUser()['id'];
+    $comment->user_id = $userId;
     $comment->save();
     // send response
     return $this->response->withJson(['status' => true, 'success' => 'Commented.'], 200);
