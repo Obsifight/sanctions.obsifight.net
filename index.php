@@ -104,6 +104,7 @@ $container['notFoundHandler'] = function ($c) {
 };
 $container['errorHandler'] = function ($c) {
   return function ($request, $response, $exception) use ($c) {
+    $session = new \SlimSession\Helper;
     return $c['view']->render($response->withStatus(500), 'Errors/500.twig', [
       'title' => 'Erreur interne',
       'router' => [
