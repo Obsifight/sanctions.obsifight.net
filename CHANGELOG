@@ -1,3 +1,6 @@
+1.1.1
+- Add nl2br for contest content + comments
+
 1.1.0
 - Fix conditions for add contest (where or where)
 - Add calendar for reduce sanction

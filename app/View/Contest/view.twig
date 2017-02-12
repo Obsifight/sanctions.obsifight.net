@@ -49,7 +49,7 @@
                   </p>
                   <p>
                     <b>Contestation: </b>
-                    &laquo; <em>{{contest.reason}}</em> &raquo;
+                    &laquo; <em>{{contest.reason|nl2br}}</em> &raquo;
                   </p>
                 </div>
               </div>
@@ -78,7 +78,7 @@
                     <span class="date moment">{{action.data.created_at}}</span>
                   </div>
                   <div class="text">
-                    {{action.data.content}}
+                    {{action.data.content|nl2br}}
                   </div>
                 </div>
               </div>
