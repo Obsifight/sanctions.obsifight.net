@@ -3,13 +3,115 @@
 {% block body %}
   <div class="ui container">
 
-    <h2 class="ui center aligned icon header">
-      <i class="circular bar chart icon"></i>
-      Bientôt...
-    </h2>
+    <div class="ui stacked segment mobile-hide" id="stats">
+      <div class="ui active inverted dimmer">
+        <div class="ui text loader">Loading</div>
+      </div>
+      <div class="ui two statistics">
+      <div class="statistic">
+        <div class="value" id="bansCount">
+          <i class="ban icon"></i>
+          0
+        </div>
+        <div class="label">
+          Bans
+        </div>
+      </div>
+      <div class="statistic">
+        <div class="value" id="mutesCount">
+          <i class="mute icon"></i>
+          0
+        </div>
+        <div class="label">
+          Mutes
+        </div>
+      </div>
+    </div>
+
+      <canvas id="chart" width="400" height="100"></canvas>
+    </div>
+
     <div class="ui divider"></div>
 
-    <a href="{{router.getBase}}/contest" class="fluid ui primary button">Contester une sanction</a>
+    <a href="{{router.getBase}}/contest" class="fluid ui primary right labeled icon button">
+      Contester une sanction
+      <i class="right arrow icon"></i>
+    </a>
 
   </div>
+{% endblock %}
+
+{% block javascript %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.3/Chart.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/fr.js"></script>
+  <script type="text/javascript">
+    function ucfirst(str) {
+      return str.charAt(0).toUpperCase() + str.substr(1)
+    }
+    moment().locale('fr')
+    var ctx = document.getElementById("chart")
+    $.get('{{router.getBase}}/stats', function (data) {
+      if (!data.status)
+        $('#stats').html('<div class="ui negative message"><i class="close icon"></i><div class="header">Erreur</div><p>' + data.error + '</p></div>')
+
+      $('#bansCount').html('<i class="ban icon"></i> ' + data.data.counts.bans)
+      $('#mutesCount').html('<i class="mute icon"></i> ' + data.data.counts.mutes)
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [ucfirst(moment().subtract(6, 'day').format('dddd')), ucfirst(moment().subtract(5, 'day').format('dddd')), ucfirst(moment().subtract(4, 'day').format('dddd')), ucfirst(moment().subtract(3, 'day').format('dddd')), ucfirst(moment().subtract(2, 'day').format('dddd')), ucfirst(moment().subtract(1, 'day').format('dddd')), ucfirst(moment().format('dddd'))],
+          datasets: [
+            {
+              label: 'Bans',
+              fill: false,
+              lineTension: 0.1,
+              backgroundColor: "rgba(192, 57, 43,0.4)",
+              borderColor: "rgba(192, 57, 43,1)",
+              borderCapStyle: 'butt',
+              borderDash: [],
+              borderDashOffset: 0.0,
+              borderJoinStyle: 'miter',
+              pointBorderColor: "rgba(192, 57, 43,1)",
+              pointBackgroundColor: "#fff",
+              pointBorderWidth: 1,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: "rgba(192, 57, 43,1)",
+              pointHoverBorderColor: "rgba(220,220,220,1)",
+              pointHoverBorderWidth: 2,
+              pointRadius: 1,
+              pointHitRadius: 10,
+              data: data.data.graph.bans,
+              spanGaps: false,
+            },
+            {
+              label: 'Mutes',
+              fill: false,
+              lineTension: 0.1,
+              backgroundColor: "rgba(230,126,34,0.4)",
+              borderColor: "rgba(230,126,34,1)",
+              borderCapStyle: 'butt',
+              borderDash: [],
+              borderDashOffset: 0.0,
+              borderJoinStyle: 'miter',
+              pointBorderColor: "rgba(230,126,34,1)",
+              pointBackgroundColor: "#fff",
+              pointBorderWidth: 1,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: "rgba(230,126,34,1)",
+              pointHoverBorderColor: "rgba(220,220,220,1)",
+              pointHoverBorderWidth: 2,
+              pointRadius: 1,
+              pointHitRadius: 10,
+              data: data.data.graph.mutes,
+              spanGaps: false,
+            }
+          ]
+        }
+      })
+
+      $('#stats .dimmer').remove()
+    })
+  </script>
 {% endblock %}

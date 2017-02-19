@@ -20,8 +20,10 @@ class File {
 
   static public function init($file, $args = array(), $className = null, $path = null) {
     // define class name
-    if (!$className)
-      $className = end(explode(DS, $file)); // from path
+    if (!$className) {
+      $exploded = explode(DS, $file);
+      $className = end($exploded); // from path
+    }
     if (strpos($className, '.class.php')) // remove .class.php
       $className = substr($className, 0, -10);
     if (strpos($className, '.php')) // remove .php

@@ -312,4 +312,34 @@ class ContestController extends AppController {
     return $this->render('Contest/list.twig');
   }
 
+  public function listContestsPublic() {
+    // find contests
+    $this->loadModel('Contest');
+    $findContests = Contest::take(50)->orderBy('id', 'DESC')->get();
+    // users names
+    $users = array();
+    foreach ($findContests as $contest) {
+      array_push($users, $contest->user_id);
+    }
+    // configure api
+    $api = File::init('API'. DS . 'ApiObsifight', array(Configuration::get('api')['username'], Configuration::get('api')['password']));
+    $findUser = $api->get('/user/infos/username', 'POST', ['ids' => $users]);
+    if (!$findUser->status) // error
+      throw new NotFoundException($this->request, $this->response); // users not found
+    $users = $findUser->body['users'];
+
+    // each result
+    $contests = [];
+    foreach ($findContests as $contest) {
+      if (isset($users[$contest->user_id]))
+        $contest->user_name = $users[$contest->user_id];
+      else
+        $contest->user_name = $contest->user_id;
+      $contests[] = $contest;
+    }
+
+    // render
+    return $this->response->withJson(['status' => true, 'data' => $contests], 200);
+  }
+
 }

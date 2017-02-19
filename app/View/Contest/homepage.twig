@@ -114,11 +114,82 @@
 
   </div>
 
+  <div class="ui stacked segment">
+    <table class="ui celled table" id="list">
+      <thead>
+        <tr>
+          <th>Joueur</th>
+          <th>Type de sanction</th>
+          <th>Date de création</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
 </div>
 
 {% endblock %}
 
+{% block css %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/dataTables.semanticui.min.css" media="screen" charset="utf-8">
+  <style media="screen">
+    #list_length {
+      display: none;
+    }
+  </style>
+{% endblock %}
 {% block javascript %}
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/dataTables.semanticui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/locale/fr.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      moment().locale('fr')
+      $('#list').DataTable({
+        ordering: false,
+        info: false,
+        aria: false,
+        lengthMenu: false,
+        responsive: true,
+        language: {
+          processing:     "Traitement en cours...",
+          search:         "Rechercher&nbsp;:",
+          loadingRecords: "Chargement en cours...",
+          zeroRecords:    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+          emptyTable:     "Aucune donnée disponible dans le tableau",
+          paginate: {
+            first:      "Premier",
+            previous:   "Pr&eacute;c&eacute;dent",
+            next:       "Suivant",
+            last:       "Dernier"
+          },
+        },
+        ajax: '{{router.getBase}}/contest/list/public',
+        columns: [
+          {
+            data: 'user_name'
+          },
+          {
+            data: 'sanction_type',
+            render: function (data, type, row) {
+              if (data == 'ban')
+                return '<div class="ui red horizontal label">Ban</div>'
+              else
+                return '<div class="ui orange horizontal label">Mute</div>'
+            }
+          },
+          {
+            data: 'created_at',
+            render: function (data, type, row) {
+              return moment(data).fromNow();
+            }
+          }
+        ],
+      })
+    })
+  </script>
   <script type="text/javascript">
     // confirm var
     var confirmVars = {
