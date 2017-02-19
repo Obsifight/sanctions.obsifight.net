@@ -121,6 +121,7 @@
           <th>Joueur</th>
           <th>Type de sanction</th>
           <th>Date de création</th>
+          <th></th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -184,6 +185,12 @@
             data: 'created_at',
             render: function (data, type, row) {
               return moment(data).fromNow();
+            }
+          },
+          {
+            data: 'id',
+            render: function (data, type, row) {
+              return '<a href="{{router.getBase}}/contest/' + data + '" class="ui primary button">Voir la contestation</a>';
             }
           }
         ],
